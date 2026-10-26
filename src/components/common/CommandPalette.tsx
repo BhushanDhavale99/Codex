@@ -181,7 +181,7 @@ export const CommandPalette: React.FC<{ isOpen: boolean; onClose: () => void }> 
 
         <div className="px-4 py-2 border-t border-[#E5E8E1] bg-[#F7F8F5] flex items-center justify-between text-[11px] text-[#7E8C84]">
           <span className="flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#647C70]" />
+            <img src="/brandos-emblem.png" alt="BrandOS AI" className="w-3.5 h-3.5 object-contain" />
             BrandOS AI Command Navigator
           </span>
           <span>Use ⌘K to open anytime</span>

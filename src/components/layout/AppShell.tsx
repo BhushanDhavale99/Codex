@@ -119,16 +119,18 @@ export const AppShell: React.FC = () => {
         >
           {/* Logo & Header */}
           <div className="h-16 px-4 flex items-center justify-between border-b border-[#E5E8E1]">
-            <NavLink to="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-xl bg-[#647C70] flex items-center justify-center text-white shadow-xs group-hover:bg-[#53685E] transition-colors shrink-0">
-                <Shield className="w-4 h-4" />
-              </div>
+            <NavLink to="/" className="flex items-center gap-2.5 group min-w-0">
+              <img
+                src="/brandos-emblem.png"
+                alt="BrandOS AI Logo"
+                className="w-8 h-8 rounded-lg object-contain shrink-0 transition-transform group-hover:scale-105"
+              />
               {!sidebarCollapsed && (
-                <div className="flex flex-col">
+                <div className="flex flex-col min-w-0">
                   <span className="font-bold text-sm tracking-tight text-[#29332E] flex items-center gap-1">
                     BrandOS <span className="text-[#647C70] font-normal text-xs bg-[#EFF3F0] px-1 py-0.2 rounded border border-[#C2CEC7]">AI</span>
                   </span>
-                  <span className="text-[10px] text-[#57635D] tracking-tight">Verified Brand Governance</span>
+                  <span className="text-[10px] text-[#57635D] tracking-tight truncate">Verified Brand Governance</span>
                 </div>
               )}
             </NavLink>
@@ -305,6 +307,13 @@ export const AppShell: React.FC = () => {
               >
                 <Menu className="w-5 h-5" />
               </button>
+              <NavLink to="/" className="lg:hidden shrink-0 flex items-center">
+                <img
+                  src="/brandos-emblem.png"
+                  alt="BrandOS AI Logo"
+                  className="w-6 h-6 object-contain"
+                />
+              </NavLink>
 
               <nav className="flex items-center gap-1.5 text-xs text-[#57635D] truncate">
                 <span className="font-semibold text-[#29332E] hidden sm:inline">
@@ -431,7 +440,12 @@ export const AppShell: React.FC = () => {
       <Drawer
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
-        title="BrandOS AI Menu"
+        title={
+          <div className="flex items-center gap-2">
+            <img src="/brandos-emblem.png" alt="BrandOS AI" className="w-5 h-5 object-contain" />
+            <span>BrandOS AI Menu</span>
+          </div>
+        }
         description="Every claim verified. Every brand protected."
         width="md"
       >

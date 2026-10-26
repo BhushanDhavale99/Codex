@@ -21,10 +21,12 @@ export const SignUpPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#F7F8F5] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="flex items-center justify-center gap-2.5 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-[#647C70] flex items-center justify-center text-white shadow-xs">
-            <Shield className="w-5 h-5" />
-          </div>
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <img
+            src="/brandos-emblem.png"
+            alt="BrandOS AI"
+            className="w-10 h-10 object-contain drop-shadow-xs"
+          />
           <span className="text-xl font-bold text-[#29332E] tracking-tight">
             BrandOS <span className="text-[#647C70] text-sm font-semibold bg-[#EFF3F0] px-1.5 py-0.5 rounded border border-[#C2CEC7]">AI</span>
           </span>
