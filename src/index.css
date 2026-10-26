@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-base: #F7F8F5;
+    --surface: #FFFFFF;
+    --border-color: #E5E8E1;
+    --text-primary: #29332E;
+    --text-muted: #57635D;
+    --accent-sage: #647C70;
+    --accent-indigo: #7774A8;
+    --accent-amber: #C6974F;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #F7F8F5;
+    color: #29332E;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100%;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #F7F8F5;
+  }
+
+  /* Custom subtle scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #D2D7CC;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #A4B0A9;
+  }
+}
+
+@layer utilities {
+  .bg-soft-ivory {
+    background-color: #F7F8F5;
+  }
+  .card-surface {
+    background-color: #FFFFFF;
+    border: 1px solid #E5E8E1;
+    border-radius: 12px;
+  }
+  .text-charcoal {
+    color: #29332E;
+  }
+  .text-charcoal-muted {
+    color: #57635D;
+  }
+  .border-subtle {
+    border-color: #E5E8E1;
+  }
+}
