@@ -8,6 +8,7 @@ import { generateEmbedding } from '../../services/rag/embeddings'
 let devDocuments: BrandDocument[] = [
   {
     id: 'doc-1',
+    workspaceId: 'ws-1',
     name: 'Acme Clinical Marketing Guidelines 2025',
     originalFileName: 'Acme_Clinical_Marketing_Guidelines_2025_v2.1.pdf',
     category: 'Clinical & Efficacy',
@@ -59,6 +60,7 @@ let devDocuments: BrandDocument[] = [
   },
   {
     id: 'doc-2',
+    workspaceId: 'ws-1',
     name: 'FDA & FTC Regulatory Compliance Manual',
     originalFileName: 'Acme_Regulatory_Compliance_Manual_FDA_FTC_v1.4.pdf',
     category: 'Legal & Regulatory',
@@ -88,6 +90,7 @@ let devDocuments: BrandDocument[] = [
   },
   {
     id: 'doc-3',
+    workspaceId: 'ws-1',
     name: 'Product Specifications: ImmunoShield Pro',
     originalFileName: 'Acme_Product_Specs_ImmunoShield_v3.0.pdf',
     category: 'Product Specifications',
@@ -117,6 +120,7 @@ let devDocuments: BrandDocument[] = [
   },
   {
     id: 'doc-4',
+    workspaceId: 'ws-1',
     name: 'Global ESG & Sustainability Claims Standard',
     originalFileName: 'Acme_Global_ESG_Claims_Standard_v1.2.pdf',
     category: 'ESG & Sustainability',
@@ -146,6 +150,7 @@ let devDocuments: BrandDocument[] = [
   },
   {
     id: 'doc-5',
+    workspaceId: 'ws-1',
     name: 'Brand Voice, Trademark & Typography Guardrails',
     originalFileName: 'Acme_Brand_Voice_Trademark_Guardrails_v4.0.pdf',
     category: 'Trademark & IP',
@@ -180,10 +185,14 @@ export const documentRepo = {
     search?: string
     category?: string
     status?: string
+    workspaceId?: string
   }): Promise<BrandDocument[]> {
     const client = getSupabaseClient()
     if (client) {
       let query = client.from('brand_documents').select('*, sections:document_sections(*)')
+      if (params?.workspaceId) {
+        query = query.eq('workspace_id', params.workspaceId)
+      }
       if (params?.status && params.status !== 'all') {
         query = query.eq('status', params.status)
       }
@@ -197,6 +206,7 @@ export const documentRepo = {
       if (error) throw new Error(`Database error fetching documents: ${error.message}`)
       return (data || []).map((row: any) => ({
         id: row.id,
+        workspaceId: row.workspace_id,
         name: row.name,
         originalFileName: row.original_file_name,
         category: row.category,
@@ -227,6 +237,9 @@ export const documentRepo = {
     }
 
     let list = [...devDocuments]
+    if (params?.workspaceId) {
+      list = list.filter((d) => (d.workspaceId || 'ws-1') === params.workspaceId)
+    }
     if (params?.search) {
       const q = params.search.toLowerCase()
       list = list.filter(
@@ -256,6 +269,7 @@ export const documentRepo = {
       if (error || !data) return null
       return {
         id: data.id,
+        workspaceId: data.workspace_id,
         name: data.name,
         originalFileName: data.original_file_name,
         category: data.category,
@@ -296,6 +310,7 @@ export const documentRepo = {
         .from('brand_documents')
         .insert({
           id: doc.id,
+          workspace_id: doc.workspaceId || 'ws-1',
           name: doc.name,
           original_file_name: doc.originalFileName,
           category: doc.category,
@@ -331,7 +346,7 @@ export const documentRepo = {
           })
         )
         const { error: secError } = await client.from('document_sections').insert(sectionsToInsert)
-        if (secError) console.error('Error inserting document sections:', secError.message)
+        if (secError) throw new Error(`Database error inserting document sections: ${secError.message}`)
       }
 
       return doc

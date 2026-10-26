@@ -2,12 +2,13 @@ import { ApprovalDecision, ReviewDraft, UserProfile } from '../../types'
 import { reviewRepo } from '../../db/repositories/reviewRepo'
 import { auditRepo } from '../../db/repositories/auditRepo'
 import { validateTransition } from './stateMachine'
-import { NotFoundError } from '../errors'
+import { NotFoundError, ValidationError } from '../errors'
 
 export const approvalService = {
   /**
    * Submits a formal human approval/rejection decision, enforcing legal state transitions,
-   * persisting the decision, and logging an immutable audit record.
+   * verifying no unresolved brand contradictions exist for approval, persisting the decision,
+   * and logging an immutable audit record.
    */
   async processDecision(
     reviewId: string,
@@ -22,10 +23,25 @@ export const approvalService = {
     // 1. Enforce state machine transition and user authority
     validateTransition(existing.status, decision.decision, actor.role)
 
-    // 2. Persist decision in database repository
+    // 2. Enforce brand governance: Cannot approve draft with active contradicted findings
+    if (decision.decision === 'approved') {
+      const activeContradictions = existing.findings.filter(
+        (f) =>
+          f.status === 'contradicted' &&
+          f.suggestionStatus !== 'applied' &&
+          f.suggestionStatus !== 'edited'
+      )
+      if (activeContradictions.length > 0) {
+        throw new ValidationError(
+          `Cannot approve draft "${existing.title}": Contains ${activeContradictions.length} unresolved contradicted claim(s). All violations must be corrected before sign-off.`
+        )
+      }
+    }
+
+    // 3. Persist decision in database repository
     const updated = await reviewRepo.submitDecision(reviewId, decision)
 
-    // 3. Map decision to audit action type
+    // 4. Map decision to audit action type
     const actionTypeMap: Record<ApprovalDecision['decision'], 'approval_decision' | 'rejection_decision' | 'revisions_requested'> = {
       approved: 'approval_decision',
       rejected: 'rejection_decision',
@@ -34,9 +50,10 @@ export const approvalService = {
 
     const actionType = actionTypeMap[decision.decision]
 
-    // 4. Record immutable audit event
+    // 5. Record immutable audit event
     await auditRepo.recordAuditEvent({
       actionType,
+      workspaceId: existing.workspaceId || actor.workspaceId || 'ws-1',
       actor: {
         id: actor.id,
         name: actor.name,
@@ -74,6 +91,7 @@ export const approvalService = {
 
     await auditRepo.recordAuditEvent({
       actionType: customText ? 'suggestion_edited' : 'suggestion_accepted',
+      workspaceId: existing.workspaceId || actor.workspaceId || 'ws-1',
       actor: {
         id: actor.id,
         name: actor.name,
@@ -110,6 +128,7 @@ export const approvalService = {
 
     await auditRepo.recordAuditEvent({
       actionType: 'suggestion_rejected',
+      workspaceId: existing.workspaceId || actor.workspaceId || 'ws-1',
       actor: {
         id: actor.id,
         name: actor.name,

@@ -6,6 +6,7 @@ import { ServiceNotConfiguredError } from '../../services/errors'
 let devAuditEvents: AuditEvent[] = [
   {
     id: 'aud-108',
+    workspaceId: 'ws-1',
     timestamp: '2026-10-25T09:15:00Z',
     actionType: 'finding_generated',
     actor: {
@@ -26,6 +27,7 @@ let devAuditEvents: AuditEvent[] = [
   },
   {
     id: 'aud-107',
+    workspaceId: 'ws-1',
     timestamp: '2026-10-24T14:22:00Z',
     actionType: 'draft_submitted',
     actor: {
@@ -45,6 +47,7 @@ let devAuditEvents: AuditEvent[] = [
   },
   {
     id: 'aud-106',
+    workspaceId: 'ws-1',
     timestamp: '2026-10-23T16:45:00Z',
     actionType: 'revisions_requested',
     actor: {
@@ -63,6 +66,7 @@ let devAuditEvents: AuditEvent[] = [
   },
   {
     id: 'aud-105',
+    workspaceId: 'ws-1',
     timestamp: '2026-10-19T14:10:00Z',
     actionType: 'approval_decision',
     actor: {
@@ -81,6 +85,7 @@ let devAuditEvents: AuditEvent[] = [
   },
   {
     id: 'aud-104',
+    workspaceId: 'ws-1',
     timestamp: '2026-09-14T10:30:00Z',
     actionType: 'document_indexed',
     actor: {
@@ -106,10 +111,14 @@ export const auditRepo = {
     userId?: string
     reviewId?: string
     search?: string
+    workspaceId?: string
   }): Promise<AuditEvent[]> {
     const client = getSupabaseClient()
     if (client) {
       let query = client.from('audit_events').select('*')
+      if (filter?.workspaceId) {
+        query = query.eq('workspace_id', filter.workspaceId)
+      }
       if (filter?.actionType && filter.actionType !== 'all') {
         query = query.eq('action_type', filter.actionType)
       }
@@ -127,6 +136,7 @@ export const auditRepo = {
 
       return (data || []).map((row: any) => ({
         id: row.id,
+        workspaceId: row.workspace_id,
         timestamp: row.created_at,
         actionType: row.action_type,
         actor: {
@@ -148,6 +158,9 @@ export const auditRepo = {
     }
 
     let list = [...devAuditEvents]
+    if (filter?.workspaceId) {
+      list = list.filter((e) => (e.workspaceId || 'ws-1') === filter.workspaceId)
+    }
     if (filter?.actionType && filter.actionType !== 'all') {
       list = list.filter((e) => e.actionType === filter.actionType)
     }
@@ -173,12 +186,14 @@ export const auditRepo = {
     const newEvent: AuditEvent = {
       id: `aud-${Date.now()}`,
       timestamp: new Date().toISOString(),
+      workspaceId: event.workspaceId || 'ws-1',
       ...event,
     }
 
     const client = getSupabaseClient()
     if (client) {
-      await client.from('audit_events').insert({
+      const { error } = await client.from('audit_events').insert({
+        workspace_id: newEvent.workspaceId || 'ws-1',
         action_type: newEvent.actionType,
         actor_id: newEvent.actor.id,
         actor_name: newEvent.actor.name,
@@ -190,6 +205,7 @@ export const auditRepo = {
         summary: newEvent.summary,
         metadata: newEvent.metadata || {},
       })
+      if (error) throw new Error(`Database error recording audit event: ${error.message}`)
       return newEvent
     }
 

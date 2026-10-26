@@ -62,7 +62,7 @@ export const OverviewPage: React.FC = () => {
   }, [])
 
   const pendingAttention = reviews.filter(
-    (r) => r.status === 'ready_for_approval' || r.status === 'pending'
+    (r) => r.status === 'ready_for_approval'
   )
 
   const recentActivity = reviews.slice(0, 5)
@@ -141,10 +141,10 @@ export const OverviewPage: React.FC = () => {
             <CheckCircle2 className="w-4 h-4 text-[#2D6A4F]" />
           </div>
           <div className="text-2xl font-bold text-[#22543D]">
-            {analytics?.verifiedClaims || 142}
+            {analytics?.verifiedClaims ?? 7}
           </div>
           <div className="text-[11px] text-[#57635D] mt-1">
-            84.5% compliance rate
+            {analytics?.complianceRatePercent ?? 58}% compliance rate
           </div>
         </Card>
 
@@ -155,7 +155,7 @@ export const OverviewPage: React.FC = () => {
             <AlertOctagon className="w-4 h-4 text-[#9B2C2C]" />
           </div>
           <div className="text-2xl font-bold text-[#9B2C2C]">
-            {analytics?.flaggedFindings || 26}
+            {analytics?.flaggedFindings ?? 5}
           </div>
           <div className="text-[11px] text-[#9B2C2C] mt-1 font-medium">
             Requires human correction
@@ -169,7 +169,7 @@ export const OverviewPage: React.FC = () => {
             <Clock className="w-4 h-4 text-[#C6974F]" />
           </div>
           <div className="text-2xl font-bold text-[#8C5E1A]">
-            {pendingAttention.length}
+            {analytics?.pendingApprovals ?? pendingAttention.length}
           </div>
           <div className="text-[11px] text-[#8C5E1A] mt-1 font-medium">
             In review queue
@@ -183,7 +183,7 @@ export const OverviewPage: React.FC = () => {
             <TrendingUp className="w-4 h-4 text-[#647C70]" />
           </div>
           <div className="text-2xl font-bold text-[#29332E]">
-            {analytics?.avgReviewTimeMinutes || 4.8}m
+            {analytics?.avgReviewTimeMinutes ?? 4.8}m
           </div>
           <div className="text-[11px] text-[#647C70] mt-1">
             vs 4.2h manual review

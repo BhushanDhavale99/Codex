@@ -22,6 +22,7 @@ documentRouter.get('/documents', async (req: Request, res: Response, next: NextF
       search: search as string,
       category: category as string,
       status: status as string,
+      workspaceId: req.workspaceId,
     })
     res.json(documents)
   } catch (err) {
@@ -206,7 +207,27 @@ documentRouter.delete(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id as string
+      const existing = await documentRepo.getDocumentById(id)
       const success = await documentRepo.deleteDocument(id)
+
+      if (success) {
+        await auditRepo.recordAuditEvent({
+          actionType: 'document_archived',
+          workspaceId: req.workspaceId || existing?.workspaceId || 'ws-1',
+          actor: {
+            id: req.user?.id || 'usr-1',
+            name: req.user?.name || 'Elena Rostova',
+            email: req.user?.email || 'elena.rostova@acmehealth.com',
+            role: req.user?.role || 'Brand Manager',
+          },
+          targetType: 'document',
+          targetId: id,
+          targetTitle: existing?.name || id,
+          summary: `Guideline document "${existing?.name || id}" removed from active registry.`,
+          metadata: { deletedId: id, originalFileName: existing?.originalFileName },
+        })
+      }
+
       res.json({ success })
     } catch (err) {
       next(err)

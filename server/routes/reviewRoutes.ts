@@ -20,6 +20,7 @@ reviewRouter.get('/reviews', async (req: Request, res: Response, next: NextFunct
       status: status as string,
       contentType: contentType as string,
       search: search as string,
+      workspaceId: req.workspaceId,
     })
     res.json(reviews)
   } catch (err) {
@@ -213,6 +214,29 @@ reviewRouter.patch(
       }
 
       const updated = await reviewRepo.updateDraftText(id, text)
+      const actor = req.user || {
+        id: 'usr-3',
+        name: 'Sophia Chen',
+        email: 'sophia.chen@acmehealth.com',
+        role: 'Creator',
+      }
+      await auditRepo.recordAuditEvent({
+        actionType: 'draft_edited',
+        workspaceId: req.workspaceId || updated.workspaceId || 'ws-1',
+        actor: {
+          id: actor.id,
+          name: actor.name,
+          email: actor.email,
+          role: actor.role,
+        },
+        targetType: 'review',
+        targetId: updated.id,
+        targetTitle: updated.title,
+        summary: `Edited draft content for "${updated.title}" (${text.length} chars).`,
+        metadata: {
+          characterCount: text.length,
+        },
+      })
       res.json(updated)
     } catch (err) {
       next(err)

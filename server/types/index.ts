@@ -153,6 +153,7 @@ export interface ReviewDraft {
 
 export type AuditEventType =
   | 'draft_submitted'
+  | 'draft_edited'
   | 'guidelines_applied'
   | 'review_started'
   | 'review_completed'
@@ -170,6 +171,7 @@ export type AuditEventType =
 
 export interface AuditEvent {
   id: string
+  workspaceId?: string
   timestamp: string
   actionType: AuditEventType
   actor: {

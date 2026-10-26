@@ -16,6 +16,7 @@ import {
   WORKSPACES,
   DEFAULT_USERS,
 } from './data'
+import { calculateGovernanceMetrics } from '@/lib/metrics'
 
 const STORAGE_KEYS = {
   DOCUMENTS: 'brandos_documents_v1',
@@ -743,47 +744,15 @@ class MockStorageAdapter {
 
   // Analytics
   async getGovernanceAnalytics(timeframe = '30d'): Promise<GovernanceAnalytics> {
-    // Dynamic recalculation based on current review numbers
-    const totalReviews = this.reviews.length
-    const approvedReviews = this.reviews.filter((r) => r.status === 'approved').length
-    const changesReq = this.reviews.filter((r) => r.status === 'changes_requested').length
-    const pendingCount = this.reviews.filter((r) => r.status === 'ready_for_approval' || r.status === 'pending').length
-
-    let verifiedTotal = 0
-    let contradictedTotal = 0
-    let needsVerifTotal = 0
-
-    this.reviews.forEach((r) => {
-      verifiedTotal += r.stats.verified
-      contradictedTotal += r.stats.contradicted
-      needsVerifTotal += r.stats.needsVerification
-    })
-
-    return {
-      ...INITIAL_ANALYTICS,
-      totalReviews,
-      verifiedClaims: verifiedTotal || INITIAL_ANALYTICS.verifiedClaims,
-      flaggedFindings: (contradictedTotal + needsVerifTotal) || INITIAL_ANALYTICS.flaggedFindings,
-      pendingApprovals: pendingCount,
-      statusBreakdown: [
-        { name: 'Verified Claims', value: verifiedTotal || 142, color: '#647C70' },
-        { name: 'Contradicted Claims', value: contradictedTotal || 16, color: '#C65D5D' },
-        { name: 'Needs Verification', value: needsVerifTotal || 10, color: '#C6974F' },
-      ],
-      reviewerDecisions: [
-        { decision: 'Approved', count: approvedReviews || 24, percentage: 65 },
-        { decision: 'Changes Requested', count: changesReq || 8, percentage: 25 },
-        { decision: 'Pending Review', count: pendingCount || 4, percentage: 10 },
-      ],
-    }
+    return calculateGovernanceMetrics(this.reviews, timeframe)
   }
 
   resetAllData() {
-    this.documents = [...INITIAL_DOCUMENTS]
-    this.reviews = [...INITIAL_REVIEWS]
-    this.auditEvents = [...INITIAL_AUDIT_EVENTS]
-    this.currentUser = DEFAULT_USERS[0]
-    this.currentWorkspace = WORKSPACES[0]
+    this.documents = JSON.parse(JSON.stringify(INITIAL_DOCUMENTS))
+    this.reviews = JSON.parse(JSON.stringify(INITIAL_REVIEWS))
+    this.auditEvents = JSON.parse(JSON.stringify(INITIAL_AUDIT_EVENTS))
+    this.currentUser = { ...DEFAULT_USERS[0] }
+    this.currentWorkspace = { ...WORKSPACES[0] }
     this.persist()
   }
 }

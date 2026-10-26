@@ -10,7 +10,7 @@ export const analyticsRouter = Router()
 analyticsRouter.get('/analytics', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const timeframe = (req.query.timeframe as string) || '30d'
-    const analytics = await analyticsService.getAnalytics(timeframe)
+    const analytics = await analyticsService.getAnalytics(timeframe, req.workspaceId)
     res.json(analytics)
   } catch (err) {
     next(err)

@@ -15,6 +15,7 @@ auditRouter.get('/audit', async (req: Request, res: Response, next: NextFunction
       userId: userId as string,
       reviewId: reviewId as string,
       search: search as string,
+      workspaceId: req.workspaceId,
     })
     res.json(events)
   } catch (err) {
