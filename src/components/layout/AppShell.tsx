@@ -28,6 +28,7 @@ import { DemoBanner } from '@/components/common/DemoBanner'
 import { CommandPalette } from '@/components/common/CommandPalette'
 import { Button } from '@/components/common/Button'
 import { Drawer } from '@/components/common/Drawer'
+import { ThemeToggle } from '@/components/common/ThemeToggle'
 
 export const AppShell: React.FC = () => {
   const location = useLocation()
@@ -354,6 +355,9 @@ export const AppShell: React.FC = () => {
                 )}
               </button>
 
+              {/* Theme Toggle (Light / Dark) */}
+              <ThemeToggle />
+
               {/* Compact New Review CTA for mobile / top bar */}
               <Button
                 variant="primary"
@@ -466,6 +470,13 @@ export const AppShell: React.FC = () => {
               )
             })}
           </nav>
+
+          <div className="pt-3 border-t border-[#E5E8E1] space-y-2">
+            <div className="text-xs font-semibold text-[#7E8C84] uppercase tracking-wider">
+              Display Theme
+            </div>
+            <ThemeToggle variant="segmented" className="w-full justify-between" />
+          </div>
         </div>
       </Drawer>
 

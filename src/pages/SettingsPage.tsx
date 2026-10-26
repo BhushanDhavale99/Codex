@@ -12,14 +12,19 @@ import {
   Copy,
   ExternalLink,
   Plus,
+  Sun,
+  Moon,
+  Monitor,
 } from 'lucide-react'
 import { authService, getApiConfigStatus } from '@/api/client'
 import { User, Workspace, UserRole } from '@/types'
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/common/Card'
 import { Button } from '@/components/common/Button'
 import { Modal } from '@/components/common/Modal'
+import { useTheme, Theme } from '@/lib/theme'
 
 export const SettingsPage: React.FC = () => {
+  const { theme, setTheme, resolvedTheme } = useTheme()
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [workspace, setWorkspace] = useState<Workspace | null>(null)
   const [allUsers, setAllUsers] = useState<User[]>([])
@@ -202,6 +207,92 @@ export const SettingsPage: React.FC = () => {
                   {savedSuccess ? 'Saved Changes!' : 'Save Workspace'}
                 </Button>
               </div>
+            </div>
+          </Card>
+
+          {/* Appearance & Display Theme */}
+          <Card>
+            <CardHeader>
+              <div>
+                <CardTitle>Appearance & Display Theme</CardTitle>
+                <CardDescription>
+                  Switch between light and dark themes or synchronize with your operating system preference
+                </CardDescription>
+              </div>
+            </CardHeader>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Light Option */}
+              <button
+                type="button"
+                onClick={() => setTheme('light')}
+                className={`p-3.5 rounded-xl border text-left transition-all relative ${
+                  theme === 'light'
+                    ? 'border-[#647C70] bg-[#EFF3F0] ring-1 ring-[#647C70]'
+                    : 'border-[#E5E8E1] bg-white hover:bg-[#F7F8F5]'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 rounded-lg bg-[#FAF1E1] border border-[#F2DEC0]">
+                    <Sun className="w-4 h-4 text-[#8C5E1A]" />
+                  </div>
+                  {theme === 'light' && (
+                    <span className="w-2 h-2 rounded-full bg-[#647C70]" />
+                  )}
+                </div>
+                <div className="text-xs font-semibold text-[#29332E]">Light Theme</div>
+                <div className="text-[11px] text-[#57635D] mt-0.5">
+                  Classic corporate ivory & sage
+                </div>
+              </button>
+
+              {/* Dark Option */}
+              <button
+                type="button"
+                onClick={() => setTheme('dark')}
+                className={`p-3.5 rounded-xl border text-left transition-all relative ${
+                  theme === 'dark'
+                    ? 'border-[#647C70] bg-[#EFF3F0] ring-1 ring-[#647C70]'
+                    : 'border-[#E5E8E1] bg-white hover:bg-[#F7F8F5]'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 rounded-lg bg-[#1A182E] border border-[#D8D6EF]/30">
+                    <Moon className="w-4 h-4 text-[#A5B4FC]" />
+                  </div>
+                  {theme === 'dark' && (
+                    <span className="w-2 h-2 rounded-full bg-[#647C70]" />
+                  )}
+                </div>
+                <div className="text-xs font-semibold text-[#29332E]">Dark Theme</div>
+                <div className="text-[11px] text-[#57635D] mt-0.5">
+                  Deep obsidian & high-contrast emerald
+                </div>
+              </button>
+
+              {/* System Option */}
+              <button
+                type="button"
+                onClick={() => setTheme('system')}
+                className={`p-3.5 rounded-xl border text-left transition-all relative ${
+                  theme === 'system'
+                    ? 'border-[#647C70] bg-[#EFF3F0] ring-1 ring-[#647C70]'
+                    : 'border-[#E5E8E1] bg-white hover:bg-[#F7F8F5]'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 rounded-lg bg-[#F1F0FA] border border-[#D8D6EF]">
+                    <Monitor className="w-4 h-4 text-[#4B487A]" />
+                  </div>
+                  {theme === 'system' && (
+                    <span className="w-2 h-2 rounded-full bg-[#647C70]" />
+                  )}
+                </div>
+                <div className="text-xs font-semibold text-[#29332E]">System Sync</div>
+                <div className="text-[11px] text-[#57635D] mt-0.5">
+                  Matches OS preference ({resolvedTheme})
+                </div>
+              </button>
             </div>
           </Card>
 
