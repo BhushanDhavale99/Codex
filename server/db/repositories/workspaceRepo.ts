@@ -11,8 +11,8 @@ let devWorkspaces: Workspace[] = [
     slug: 'acme-health',
     industry: 'Nutraceuticals & BioTech',
     activeDocumentCount: 5,
-    totalReviewsCount: 38,
-    complianceScore: 92,
+    totalReviewsCount: 4,
+    complianceScore: 58,
     createdAt: '2026-01-10T08:00:00Z',
   },
   {

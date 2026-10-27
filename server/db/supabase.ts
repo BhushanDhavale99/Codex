@@ -4,6 +4,11 @@ import { env, getServiceConfigStatus } from '../config/env'
 let supabaseClient: SupabaseClient | null = null
 
 export function getSupabaseClient(): SupabaseClient | null {
+  // During unit test runs, isolate to deterministic in-memory fixtures unless testing live DB
+  if (process.env.NODE_ENV === 'test' && !process.env.TEST_LIVE_DB) {
+    return null
+  }
+
   const status = getServiceConfigStatus()
   if (!status.supabase.configured) {
     return null
@@ -23,6 +28,9 @@ export function getSupabaseClient(): SupabaseClient | null {
 }
 
 export function isSupabaseReady(): boolean {
+  if (process.env.NODE_ENV === 'test' && !process.env.TEST_LIVE_DB) {
+    return false
+  }
   return getServiceConfigStatus().supabase.configured
 }
 

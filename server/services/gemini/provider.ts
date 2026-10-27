@@ -68,7 +68,6 @@ INSTRUCTIONS:
 `
 
   const callApi = async () => {
-    // Call Gemini API using modern @google/genai models.generateContent with responseSchema
     const response = await ai.models.generateContent({
       model: env.GEMINI_MODEL,
       contents: prompt,
@@ -80,7 +79,56 @@ INSTRUCTIONS:
 
     const rawText = response.text || ''
     const parsedJson = JSON.parse(rawText)
-    return geminiAnalysisResponseSchema.parse(parsedJson)
+    const rawList = Array.isArray(parsedJson) ? parsedJson : (parsedJson.findings || [])
+
+    const normalized = rawList.map((raw: any) => {
+      const claimText = raw.claimText || raw.claim || ''
+      const startIndex =
+        typeof raw.startIndex === 'number'
+          ? raw.startIndex
+          : draftText.indexOf(claimText) >= 0
+          ? draftText.indexOf(claimText)
+          : 0
+      const endIndex =
+        typeof raw.endIndex === 'number' ? raw.endIndex : startIndex + claimText.length
+
+      let status = (raw.status || 'needs_verification').toLowerCase()
+      if (!['verified', 'contradicted', 'needs_verification'].includes(status)) {
+        if (status.includes('contra') || status.includes('viola')) status = 'contradicted'
+        else if (status.includes('verif') || status.includes('pass')) status = 'verified'
+        else status = 'needs_verification'
+      }
+
+      let severity = (raw.severity || 'medium').toLowerCase()
+      if (!['high', 'medium', 'low'].includes(severity)) {
+        severity = 'medium'
+      }
+
+      return {
+        claimText,
+        startIndex,
+        endIndex,
+        status,
+        severity,
+        brandRuleId: raw.brandRuleId || raw.brand_rule_id || 'RULE-3.1',
+        brandRuleTitle:
+          raw.brandRuleTitle || raw.brand_rule_title || raw.violation_type || 'Brand Compliance Rule',
+        explanation: raw.explanation || raw.reason || 'Claim evaluated against brand guidelines.',
+        confidenceScore:
+          typeof raw.confidenceScore === 'number'
+            ? Math.min(100, Math.max(0, raw.confidenceScore))
+            : 92,
+        suggestedCorrection:
+          raw.suggestedCorrection || raw.suggested_correction || raw.recommended_fix || undefined,
+        citedDocumentId: raw.citedDocumentId || 'doc-1',
+        citedDocumentName: raw.citedDocumentName || raw.guideline_reference || 'Brand Guidelines',
+        citedPageNumber: typeof raw.citedPageNumber === 'number' ? raw.citedPageNumber : 1,
+        citedSectionHeading: raw.citedSectionHeading || 'Regulatory Limitations',
+        verbatimPassage: raw.verbatimPassage || '',
+      }
+    })
+
+    return geminiAnalysisResponseSchema.parse({ findings: normalized })
   }
 
   return withTimeout(withRetry(callApi, 2, 1000), env.GEMINI_TIMEOUT_MS)

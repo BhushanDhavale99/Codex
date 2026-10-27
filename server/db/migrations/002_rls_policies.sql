@@ -44,7 +44,7 @@ CREATE POLICY "Users can view profiles within their workspace"
 
 CREATE POLICY "Users can update their own profile"
     ON profiles FOR UPDATE
-    USING (id = auth.uid());
+    USING (id = auth.uid()::text);
 
 CREATE POLICY "Brand Managers can insert team profiles"
     ON profiles FOR INSERT
@@ -108,7 +108,7 @@ CREATE POLICY "Creators can edit draft before final decision; Reviewers can tran
     ON review_drafts FOR UPDATE
     USING (
         workspace_id = auth_workspace_id() AND (
-            (submitted_by_id = auth.uid() AND status IN ('pending', 'changes_requested', 'ready_for_approval'))
+            (submitted_by_id = auth.uid()::text AND status IN ('pending', 'changes_requested', 'ready_for_approval'))
             OR auth_user_role() IN ('Reviewer', 'Brand Manager')
         )
     );

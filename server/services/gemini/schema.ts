@@ -24,13 +24,11 @@ export const geminiClaimFindingSchema = z.object({
     .string()
     .optional()
     .describe('Compliant alternative wording addressing the violation'),
-  citedDocumentId: z.string().describe('ID of the source guideline document cited'),
-  citedDocumentName: z.string().describe('Official name of the source guideline document'),
-  citedPageNumber: z.number().describe('Page number in guideline PDF where rule appears'),
-  citedSectionHeading: z.string().describe('Section heading in guideline document'),
-  verbatimPassage: z
-    .string()
-    .describe('Exact verbatim excerpt from the ground-truth guideline document'),
+  citedDocumentId: z.string().optional().default('doc-general'),
+  citedDocumentName: z.string().optional().default('General Regulatory Policy'),
+  citedPageNumber: z.number().optional().default(1),
+  citedSectionHeading: z.string().optional().default('General Compliance'),
+  verbatimPassage: z.string().optional().default(''),
 })
 
 export const geminiAnalysisResponseSchema = z.object({

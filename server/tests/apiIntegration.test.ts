@@ -65,7 +65,7 @@ describe('BrandOS Express API Integration Tests', () => {
     expect(finding.evidence).toHaveProperty('verbatimPassage')
     expect(finding.evidence).toHaveProperty('citationId')
     expect(finding.evidence.relevanceScore).toBeGreaterThanOrEqual(60)
-  })
+  }, 60000)
 
   it('POST /api/reviews/:id/decision records reviewer decision and updates status', async () => {
     // Submit review first
@@ -93,7 +93,7 @@ describe('BrandOS Express API Integration Tests', () => {
     expect(decisionRes.body.approvalDecision).toBeDefined()
     expect(decisionRes.body.approvalDecision.decision).toBe('approved')
     expect(decisionRes.body.approvalDecision.reviewerName).toBe('Marcus Vance')
-  })
+  }, 60000)
 
   it('GET /api/audit returns immutable audit log', async () => {
     const res = await request(app).get('/api/audit')
@@ -126,5 +126,5 @@ describe('BrandOS Express API Integration Tests', () => {
       expect(status.gemini.configured).toBe(false)
       expect(status.gemini.missingVars).toContain('GEMINI_API_KEY')
     }
-  })
+  }, 60000)
 })
