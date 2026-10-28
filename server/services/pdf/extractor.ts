@@ -30,6 +30,33 @@ export async function extractPdfText(buffer: Buffer): Promise<ExtractedPdfResult
     const pdfParse = require('pdf-parse')
     const pages: ExtractedPage[] = []
 
+    if (pdfParse && pdfParse.PDFParse) {
+      const parser = new pdfParse.PDFParse({ data: buffer })
+      await parser.load()
+      const textResult = await parser.getText()
+      if (textResult?.pages && textResult.pages.length > 0) {
+        textResult.pages.forEach((p: any) => {
+          if (p.text && p.text.trim().length > 0) {
+            pages.push({
+              pageNumber: p.num || pages.length + 1,
+              text: p.text.trim(),
+            })
+          }
+        })
+      }
+      const fullText = (textResult?.text || '').trim()
+      const isScannedOrEmpty = fullText.length === 0
+      return {
+        pageCount: textResult?.total || (pages.length > 0 ? pages.length : 1),
+        text: fullText,
+        pages,
+        isScannedOrEmpty,
+        warning: isScannedOrEmpty
+          ? 'No extractable text found in PDF. Scanned or image-only PDFs require OCR preprocessing.'
+          : undefined,
+      }
+    }
+
     let currentPage = 1
     const pager = (pageData: any) => {
       return pageData.getTextContent().then((textContent: any) => {

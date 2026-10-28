@@ -9,6 +9,11 @@ export const DemoBanner: React.FC = () => {
   const [showModal, setShowModal] = useState(false)
   const [resetSuccess, setResetSuccess] = useState(false)
 
+  // Hide banner automatically when connected to the live backend
+  if (!status.isDemoMode) {
+    return null
+  }
+
   const handleReset = () => {
     resetDemoData()
     setResetSuccess(true)

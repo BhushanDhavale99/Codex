@@ -96,34 +96,43 @@ export const BrandKnowledgePage: React.FC = () => {
     }
   }
 
+  const [uploadError, setUploadError] = useState<string | null>(null)
+
   const handleStartUpload = async () => {
     if (!selectedFile) return
+    setUploadError(null)
 
-    setUploadStep('uploading')
-    await new Promise((r) => setTimeout(r, 600))
+    try {
+      setUploadStep('uploading')
+      await new Promise((r) => setTimeout(r, 600))
 
-    setUploadStep('chunking')
-    await new Promise((r) => setTimeout(r, 700))
+      setUploadStep('chunking')
+      await new Promise((r) => setTimeout(r, 700))
 
-    setUploadStep('extracting')
-    await new Promise((r) => setTimeout(r, 800))
+      setUploadStep('extracting')
+      await new Promise((r) => setTimeout(r, 800))
 
-    setUploadStep('indexing')
-    await new Promise((r) => setTimeout(r, 600))
+      setUploadStep('indexing')
+      await new Promise((r) => setTimeout(r, 600))
 
-    const newDoc = await documentService.uploadDocument(selectedFile, {
-      category: docCategory,
-      version: docVersion,
-    })
+      const newDoc = await documentService.uploadDocument(selectedFile, {
+        category: docCategory,
+        version: docVersion,
+      })
 
-    setUploadStep('success')
-    await new Promise((r) => setTimeout(r, 500))
+      setUploadStep('success')
+      await new Promise((r) => setTimeout(r, 500))
 
-    setUploadModalOpen(false)
-    setSelectedFile(null)
-    setUploadStep('idle')
-    loadDocuments()
-    setActiveDrawerDoc(newDoc)
+      setUploadModalOpen(false)
+      setSelectedFile(null)
+      setUploadStep('idle')
+      loadDocuments()
+      setActiveDrawerDoc(newDoc)
+    } catch (err: any) {
+      console.error('Upload failed:', err)
+      setUploadError(err.message || 'Failed to upload document. Please ensure the backend server is running.')
+      setUploadStep('idle')
+    }
   }
 
   const handleToggleArchive = async (doc: BrandDocument) => {
@@ -440,6 +449,13 @@ export const BrandKnowledgePage: React.FC = () => {
                   }}
                 />
               </div>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {uploadError && (
+            <div className="bg-[#FAF1F0] p-3 rounded-xl border border-[#F5D5D3] text-xs text-[#A82B24]">
+              {uploadError}
             </div>
           )}
 

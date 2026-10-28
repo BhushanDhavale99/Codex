@@ -1,5 +1,7 @@
 import express from 'express'
 import cors from 'cors'
+import path from 'path'
+import fs from 'fs'
 import { authMiddleware } from './middleware/auth'
 import { centralErrorHandler } from './middleware/errorHandler'
 import { authRouter } from './routes/authRoutes'
@@ -56,6 +58,18 @@ app.use('/api', documentRouter)
 app.use('/api', reviewRouter)
 app.use('/api', auditRouter)
 app.use('/api', analyticsRouter)
+
+// Serve production static frontend build (SPA client-side routing)
+const distPath = path.resolve(process.cwd(), 'dist')
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath))
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next()
+    }
+    res.sendFile(path.join(distPath, 'index.html'))
+  })
+}
 
 // Central Error Handler
 app.use(centralErrorHandler)
